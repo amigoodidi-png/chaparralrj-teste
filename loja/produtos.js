@@ -1,4 +1,4 @@
-// Gerado a partir da loja oficial em 2026-10-27. Só vitrine: compra e pagamento ficam na loja oficial.
+// Gerado a partir da loja oficial em 2026-11-06. Só vitrine: compra e pagamento ficam na loja oficial.
 window.PRODUTOS = [
 {
 "id": 121,
@@ -580,6 +580,17 @@ window.PRODUTOS = [
 ]
 },
 {
+"id": 168,
+"nome": "3 Coins",
+"preco": 3,
+"cat": "Extras",
+"sub": "coins",
+"desc": "Teste 3 coins",
+"fotos": [
+"168-1.jpg"
+]
+},
+{
 "id": 98,
 "nome": "Vagas de Garagens",
 "preco": 6,
@@ -830,6 +841,17 @@ window.PRODUTOS = [
 "desc": "Recupere seu acesso e volte ao RP! 🎮\nErrou na cidade? Todo mundo merece uma segunda chance. Mais lembre que a terceira é burrice",
 "fotos": [
 "97-1.jpg"
+]
+},
+{
+"id": 169,
+"nome": "Favela da Reta",
+"preco": 0,
+"cat": "Favelas",
+"sub": "",
+"desc": "Favela da Reta",
+"fotos": [
+"169-1.jpg"
 ]
 },
 {
@@ -1303,7 +1325,7 @@ window.PRODUTOS = [
 "preco": 60,
 "cat": "Veiculos",
 "sub": "Carros",
-"desc": "Ultrapassa 220 km/h",
+"desc": "Ultrapassa  220 km/h",
 "fotos": [
 "31-1.jpg",
 "31-2.jpg",
