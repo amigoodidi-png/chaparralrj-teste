@@ -39,3 +39,24 @@
 @media(max-width:600px){ .cart-btn{ padding:9px 11px; } }
 .aviso-fora{ margin-top:16px; font-size:0.9rem; line-height:1.5; color:var(--text); background:rgba(232,180,58,0.10); border:1px solid var(--amber); border-radius:4px; padding:12px 14px; }
 .aviso-fora b{ color:var(--amber); }
+/* Item 2 (2026-11-10): botão Ver mais e 2 produtos por linha no celular */
+.ver-mais{ display:flex; flex-direction:column; align-items:center; gap:12px; margin-top:32px; color:var(--text-faint); font:0.74rem 'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.04em; }
+.ver-mais:empty{ display:none; }
+.ver-mais .btn{ cursor:pointer; font-family:inherit; }
+@media(max-width:600px){
+  .loja-grade{ grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+  .produto-card .info{ padding:10px 10px 12px; gap:4px; }
+  .produto-card .tag{ font-size:0.6rem; }
+  .produto-card h3{ font-size:0.86rem; line-height:1.25; overflow-wrap:anywhere; }
+  .produto-card .preco{ font-size:1.25rem; }
+  .loja-filtros{ flex-wrap:nowrap; overflow-x:auto; margin:14px -16px 20px; padding:0 16px 4px; scrollbar-width:none; }
+  .loja-filtros::-webkit-scrollbar{ display:none; }
+  .loja-filtros button{ flex:0 0 auto; }
+  .loja-busca input{ max-width:none; }
+  .so-desk{ display:none; }
+  .nav-wrap{ gap:10px; padding:14px 16px; }
+  .brand{ font-size:1.3rem; gap:6px; min-width:0; }
+  .brand .dot{ display:none; }
+  .brand img{ height:28px; }
+  .cart-btn{ padding:9px 10px; font-size:0.74rem; margin-left:auto; }
+}

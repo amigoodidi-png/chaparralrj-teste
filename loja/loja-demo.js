@@ -21,7 +21,9 @@ function card(p) {
 function paginaLista() {
   const filtros = document.getElementById('filtros'), grade = document.getElementById('produtos'), busca = document.getElementById('busca');
   const q = new URLSearchParams(location.search);
-  let atual = '', termo = '';
+  const POR_VEZ = 24;
+  let atual = '', termo = '', limite = POR_VEZ;
+  const mais = document.createElement('div'); mais.className = 'ver-mais'; grade.after(mais);
   const acharCat = c => { const n = norm(c); return CATEGORIAS.find(k => norm(k) === n) || CATEGORIAS.find(k => norm(k).includes(n) || n.includes(norm(k))) || ''; };
   if (q.get('busca') && PRODUTOS.some(p => norm(p.nome).includes(norm(q.get('busca'))))) termo = q.get('busca');
   else if (q.get('categoria')) atual = acharCat(q.get('categoria'));
@@ -30,10 +32,15 @@ function paginaLista() {
     filtros.innerHTML = [['', 'Tudo'], ...CATEGORIAS.map(c => [c, c])]
       .map(([k, v]) => `<button type="button" data-cat="${esc(k)}" class="${k === atual ? 'ativo' : ''}">${esc(v)}</button>`).join('');
     const lista = PRODUTOS.filter(p => (!atual || p.cat === atual) && (!termo || norm(p.nome + ' ' + p.desc).includes(norm(termo))));
-    grade.innerHTML = lista.length ? lista.map(card).join('') : '<div class="vazio">Nenhum produto encontrado.</div>';
+    grade.innerHTML = lista.length ? lista.slice(0, limite).map(card).join('') : '<div class="vazio">Nenhum produto encontrado.</div>';
+    const resta = lista.length - limite;
+    mais.innerHTML = resta > 0
+      ? `<span>Mostrando ${limite} de ${lista.length} produtos</span><button type="button" class="btn btn-ghost">Ver mais ${Math.min(resta, POR_VEZ)} →</button>`
+      : (lista.length > POR_VEZ ? `<span>Todos os ${lista.length} produtos na tela</span>` : '');
   }
-  filtros.addEventListener('click', e => { const b = e.target.closest('button[data-cat]'); if (!b) return; atual = b.dataset.cat; termo = ''; busca.value = ''; render(); });
-  busca.addEventListener('input', () => { termo = busca.value; atual = ''; render(); });
+  mais.addEventListener('click', e => { if (!e.target.closest('button')) return; limite += POR_VEZ; render(); });
+  filtros.addEventListener('click', e => { const b = e.target.closest('button[data-cat]'); if (!b) return; atual = b.dataset.cat; termo = ''; busca.value = ''; limite = POR_VEZ; render(); });
+  busca.addEventListener('input', () => { termo = busca.value; atual = ''; limite = POR_VEZ; render(); });
   render();
 }
 
@@ -79,7 +86,7 @@ function lojaNoAr() {
   });
 }
 function usarDiscord() {
-  document.querySelectorAll('#link-oficial').forEach(a => { a.href = DISCORD; a.textContent = '💬 Comprar pelo Discord'; });
+  document.querySelectorAll('#link-oficial').forEach(a => { a.href = DISCORD; a.innerHTML = '💬 <span class="so-desk">Comprar pelo </span>Discord'; });
   const b = document.getElementById('btn-comprar'), aviso = document.getElementById('aviso-fora');
   if (b) { b.href = DISCORD; b.textContent = 'Comprar pelo Discord →'; }
   if (aviso) aviso.hidden = false;
