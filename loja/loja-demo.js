@@ -54,8 +54,9 @@ function paginaProduto() {
       <div class="preco">${brl(p.preco)}</div>
       <div class="desc">${esc(p.desc).replace(/\n/g, '<br>')}</div>
       <div class="comprar">
-        <a class="btn btn-loja btn-grande" href="${oficial('busca=' + encodeURIComponent(p.nome))}" target="_blank" rel="noopener">Comprar na loja oficial →</a>
+        <a class="btn btn-loja btn-grande" id="btn-comprar" href="${oficial('busca=' + encodeURIComponent(p.nome))}" target="_blank" rel="noopener">Comprar na loja oficial →</a>
       </div>
+      <div class="aviso-fora" id="aviso-fora" hidden><b>A loja oficial está fora do ar agora.</b> Para não perder a compra, chame a staff no Discord e diga que quer: <b>${esc(p.nome)}</b> (${brl(p.preco)}).</div>
       <ul class="vantagens"><li><b>Pagamento seguro na loja oficial.</b> Depois de pago, o item cai direto no seu personagem.</li><li><b>Dúvidas?</b> Chame a staff no <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</li></ul>
     </div>`;
   box.querySelectorAll('.miniaturas button').forEach(b => b.addEventListener('click', () => {
@@ -64,8 +65,29 @@ function paginaProduto() {
   }));
 }
 
+// Plano B: se a loja oficial não responder (túnel desligado ou PC fora), a compra vai para o Discord.
+// O teste carrega uma imagem pequena da loja oficial. Não muda nada lá.
+function lojaNoAr() {
+  return new Promise(ok => {
+    if (!window.ENDERECO_LOJA) return ok(false);
+    let fim = false; const responder = v => { if (!fim) { fim = true; ok(v); } };
+    const img = new Image();
+    img.onload = () => responder(true);
+    img.onerror = () => responder(false);
+    setTimeout(() => responder(false), 6000);
+    img.src = window.ENDERECO_LOJA + 'img/module_table_top.png?t=' + Date.now();
+  });
+}
+function usarDiscord() {
+  document.querySelectorAll('#link-oficial').forEach(a => { a.href = DISCORD; a.textContent = '💬 Comprar pelo Discord'; });
+  const b = document.getElementById('btn-comprar'), aviso = document.getElementById('aviso-fora');
+  if (b) { b.href = DISCORD; b.textContent = 'Comprar pelo Discord →'; }
+  if (aviso) aviso.hidden = false;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#link-oficial').forEach(a => a.href = oficial(''));
+  lojaNoAr().then(noAr => { if (!noAr) usarDiscord(); });
   const pg = document.body.dataset.page;
   if (pg === 'lista') paginaLista();
   if (pg === 'produto') paginaProduto();
