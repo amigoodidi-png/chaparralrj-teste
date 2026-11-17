@@ -10,10 +10,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/site.css?v=5">
-<link rel="stylesheet" href="loja.css?v=3">
+<link rel="stylesheet" href="loja.css?v=4">
 <script src="endereco-loja.js?v=1"></script>
 <script src="produtos.js?v=2" defer></script>
-<script src="loja-demo.js?v=3" defer></script>
+<script src="catalogo.js?v=1" defer></script>
+<script src="loja-demo.js?v=4" defer></script>
 </head>
 <body data-page="lista">
 
@@ -97,7 +98,7 @@
   <p class="lede">VIPs, Coins e imóveis com entrega direto no seu personagem.</p>
 </section>
 <section class="tight loja-area">
-  <div class="loja-busca"><input id="busca" type="search" placeholder="Buscar produto..." aria-label="Buscar produto"></div>
+  <div class="loja-busca"><input id="busca" type="search" placeholder="Buscar produto..." aria-label="Buscar produto"><select id="ordenar" aria-label="Ordenar produtos"><option value="">Ordenar: recomendado</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="az">Nome (A a Z)</option></select></div>
   <div class="loja-filtros" id="filtros"></div>
   <div class="loja-grade" id="produtos"></div>
 </section>

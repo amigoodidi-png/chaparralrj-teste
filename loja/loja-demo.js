@@ -7,13 +7,16 @@ const brl = v => 'R$ ' + Number(v).toFixed(2).replace('.', ',');
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const foto = p => p.fotos && p.fotos.length ? 'fotos/' + p.fotos[0] : '../img/logo.png';
-const CATEGORIAS = [...new Set(PRODUTOS.map(p => p.cat))];
+const ORDEM = window.ORDEM_CATEGORIAS || [];
+const CATEGORIAS = [...new Set(PRODUTOS.map(p => p.cat))].sort((a, b) => (ORDEM.indexOf(a) + 1 || 99) - (ORDEM.indexOf(b) + 1 || 99));
+const precoTxt = p => p.sobConsulta ? 'Sob consulta' : brl(p.preco);
+const nomeLoja = p => p.nomeOficial || p.nome;
 
 const oficial = q => (window.ENDERECO_LOJA || 'https://discord.gg/Wx2dg5drwc') + (q && window.ENDERECO_LOJA ? '?' + q : '');
 function card(p) {
   return `<a class="produto-card" href="produto.html?id=${p.id}">
-    <div class="foto"><img src="${foto(p)}" alt="${esc(p.nome)}" loading="lazy"></div>
-    <div class="info"><span class="tag">${esc(p.cat)}${p.sub ? ' · ' + esc(p.sub) : ''}</span><h3>${esc(p.nome)}</h3><span class="preco">${brl(p.preco)}</span></div>
+    <div class="foto"><img src="${foto(p)}" alt="${esc(p.nome)}" loading="lazy">${p.selo ? `<span class="selo-card">${esc(p.selo)}</span>` : ''}</div>
+    <div class="info"><span class="tag">${esc(p.cat)}${p.sub ? ' · ' + esc(p.sub) : ''}</span><h3>${esc(p.nome)}</h3><span class="preco${p.sobConsulta ? ' consulta' : ''}">${precoTxt(p)}</span></div>
   </a>`;
 }
 
@@ -22,16 +25,23 @@ function paginaLista() {
   const filtros = document.getElementById('filtros'), grade = document.getElementById('produtos'), busca = document.getElementById('busca');
   const q = new URLSearchParams(location.search);
   const POR_VEZ = 24;
-  let atual = '', termo = '', limite = POR_VEZ;
+  let atual = '', termo = '', limite = POR_VEZ, ordem = '';
+  const ordenar = document.getElementById('ordenar');
+  if (ordenar) ordenar.addEventListener('change', () => { ordem = ordenar.value; limite = POR_VEZ; render(); });
   const mais = document.createElement('div'); mais.className = 'ver-mais'; grade.after(mais);
-  const acharCat = c => { const n = norm(c); return CATEGORIAS.find(k => norm(k) === n) || CATEGORIAS.find(k => norm(k).includes(n) || n.includes(norm(k))) || ''; };
-  if (q.get('busca') && PRODUTOS.some(p => norm(p.nome).includes(norm(q.get('busca'))))) termo = q.get('busca');
+  const APELIDOS = window.APELIDOS_CATEGORIA || {};
+  const acharCat = c => { const n = norm(c); if (APELIDOS[n] && CATEGORIAS.includes(APELIDOS[n])) return APELIDOS[n]; return CATEGORIAS.find(k => norm(k) === n) || CATEGORIAS.find(k => norm(k).includes(n) || n.includes(norm(k))) || ''; };
+  if (q.get('busca') && PRODUTOS.some(p => norm(p.nome + ' ' + nomeLoja(p)).includes(norm(q.get('busca'))))) termo = q.get('busca');
   else if (q.get('categoria')) atual = acharCat(q.get('categoria'));
   busca.value = termo;
   function render() {
     filtros.innerHTML = [['', 'Tudo'], ...CATEGORIAS.map(c => [c, c])]
       .map(([k, v]) => `<button type="button" data-cat="${esc(k)}" class="${k === atual ? 'ativo' : ''}">${esc(v)}</button>`).join('');
-    const lista = PRODUTOS.filter(p => (!atual || p.cat === atual) && (!termo || norm(p.nome + ' ' + p.desc).includes(norm(termo))));
+    const lista = PRODUTOS.filter(p => (!atual || p.cat === atual) && (!termo || norm(p.nome + ' ' + nomeLoja(p) + ' ' + p.desc).includes(norm(termo))));
+    if (ordem === 'menor') lista.sort((a, b) => a.preco - b.preco);
+    else if (ordem === 'maior') lista.sort((a, b) => b.preco - a.preco);
+    else if (ordem === 'az') lista.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    else lista.sort((a, b) => CATEGORIAS.indexOf(a.cat) - CATEGORIAS.indexOf(b.cat) || a.preco - b.preco);
     grade.innerHTML = lista.length ? lista.slice(0, limite).map(card).join('') : '<div class="vazio">Nenhum produto encontrado.</div>';
     const resta = lista.length - limite;
     mais.innerHTML = resta > 0
@@ -58,12 +68,12 @@ function paginaProduto() {
     <div>
       <span class="eyebrow">${esc(p.cat)}${p.sub ? ' // ' + esc(p.sub) : ''}</span>
       <h1>${esc(p.nome)}</h1>
-      <div class="preco">${brl(p.preco)}</div>
+      <div class="preco${p.sobConsulta ? ' consulta' : ''}">${precoTxt(p)}</div>
       <div class="desc">${esc(p.desc).replace(/\n/g, '<br>')}</div>
       <div class="comprar">
-        <a class="btn btn-loja btn-grande" id="btn-comprar" href="${oficial('busca=' + encodeURIComponent(p.nome))}" target="_blank" rel="noopener">Comprar na loja oficial →</a>
+        <a class="btn btn-loja btn-grande" id="btn-comprar" href="${oficial('busca=' + encodeURIComponent(nomeLoja(p)))}" target="_blank" rel="noopener">Comprar na loja oficial →</a>
       </div>
-      <div class="aviso-fora" id="aviso-fora" hidden><b>A loja oficial está fora do ar agora.</b> Para não perder a compra, chame a staff no Discord e diga que quer: <b>${esc(p.nome)}</b> (${brl(p.preco)}).</div>
+      <div class="aviso-fora" id="aviso-fora" hidden><b>A loja oficial está fora do ar agora.</b> Para não perder a compra, chame a staff no Discord e diga que quer: <b>${esc(p.nome)}</b>${p.sobConsulta ? '' : ' (' + brl(p.preco) + ')'}.</div>
       <ul class="vantagens"><li><b>Pagamento seguro na loja oficial.</b> Depois de pago, o item cai direto no seu personagem.</li><li><b>Dúvidas?</b> Chame a staff no <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</li></ul>
     </div>`;
   box.querySelectorAll('.miniaturas button').forEach(b => b.addEventListener('click', () => {
