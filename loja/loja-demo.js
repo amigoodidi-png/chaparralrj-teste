@@ -76,6 +76,16 @@ function paginaProduto() {
       <div class="aviso-fora" id="aviso-fora" hidden><b>A loja oficial está fora do ar agora.</b> Para não perder a compra, chame a staff no Discord e diga que quer: <b>${esc(p.nome)}</b>${p.sobConsulta ? '' : ' (' + brl(p.preco) + ')'}.</div>
       <ul class="vantagens"><li><b>Pagamento seguro na loja oficial.</b> Depois de pago, o item cai direto no seu personagem.</li><li><b>Dúvidas?</b> Chame a staff no <a href="${DISCORD}" target="_blank" rel="noopener">Discord</a>.</li></ul>
     </div>`;
+  // Produtos parecidos: mesma categoria, preço mais próximo primeiro.
+  const parecidos = PRODUTOS.filter(x => x.cat === p.cat && x.id !== p.id)
+    .sort((a, b) => Math.abs(a.preco - p.preco) - Math.abs(b.preco - p.preco)).slice(0, 4);
+  if (parecidos.length) {
+    const sec = document.createElement('div');
+    sec.className = 'parecidos';
+    sec.innerHTML = `<div class="parecidos-topo"><h2>Produtos parecidos</h2><a href="index.html?categoria=${encodeURIComponent(p.cat)}">Ver todos em ${esc(p.cat)} →</a></div>
+      <div class="loja-grade">${parecidos.map(card).join('')}</div>`;
+    box.after(sec);
+  }
   box.querySelectorAll('.miniaturas button').forEach(b => b.addEventListener('click', () => {
     document.getElementById('foto-principal').src = b.dataset.src;
     box.querySelectorAll('.miniaturas button').forEach(x => x.classList.toggle('ativo', x === b));
